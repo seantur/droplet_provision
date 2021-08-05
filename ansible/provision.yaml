@@ -1,0 +1,67 @@
+---
+- hosts: all
+  user: root
+
+  vars_files:
+    - ./variables.yaml
+
+  vars_prompt:
+    - name: new_user_pass
+      prompt: Enter new password for {{ new_user }}
+      encrypt: sha512_crypt
+      private: yes
+
+  tasks:
+  - name: Add the user '{{ new_user }}'
+    user:
+      name: '{{ new_user }}'
+      group: sudo
+      shell: /bin/bash
+      password: "{{ new_user_pass }}"
+      update_password: on_create
+
+  - name: Add SSH key to '{{ new_user }}'
+    authorized_key:
+      user: "{{ new_user }}"
+      state: present
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub' | expanduser) }}"
+
+  - name: Update all packages
+    apt:
+      name: "*"
+      state: latest
+      update_cache: yes
+
+  - name: Install base packages
+    apt:
+      pkg: "{{ packages }}"
+
+  - name: Install go
+    args:
+      creates: /usr/local/go
+    shell: >
+      wget https://dl.google.com/go/go{{ golang_version }}.linux-amd64.tar.gz &&
+      tar -C /usr/local -xvf go{{ golang_version }}.linux-amd64.tar.gz &&
+      rm go{{ golang_version }}.linux-amd64.tar.gz
+
+  - name: Add go to the path
+    become: yes
+    become_user: "{{ new_user }}"
+    lineinfile:
+      path: ~/.bashrc
+      line: export PATH=$PATH:/usr/local/go/bin
+
+  - name: Remove root ssh access
+    replace:
+      path: /etc/ssh/sshd_config
+      regexp: 'PermitRootLogin yes'
+      replace: 'PermitRootLogin no'
+
+  - name: Restart sshd
+    service:
+      name: ssh
+      state: restarted
+
+  # We should reboot the server at the end, but this attempts to reconnect via root, which triggers fail2ban to ban the IP
+  # - name: Reboot server
+  # reboot:

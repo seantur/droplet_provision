@@ -1,0 +1,9 @@
+new_user: sean
+golang_version: 1.16.6
+packages:
+  - jq
+  - git
+  - stow
+  - neovim
+  - rclone
+  - fail2ban
