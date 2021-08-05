@@ -12,7 +12,7 @@ An example script which uses the cloudflare API to set the DNS A record for the 
 
 ## Prerequisites
 * Export `DIGITALOCEAN_TOKEN` (see api token [here](https://cloud.digitalocean.com/account/api/tokens))
-* Update ssh_id in `tf/terraform.tfvars` (use api to get ssh_id [here](https://docs.digitalocean.com/reference/api/api-reference/#operation/list_all_keys))
+* Update ssh_id in `tf/terraform.tfvars` (use api to get ssh_id [here](https://docs.digitalocean.com/reference/api/api-reference/#operation/list_all_keys)), example in `scripts/get_do_ssh_keys.sh`
 * Export cloudflare environment variables if needed:
     * `CLOUDFLARE_TOKEN` (see [here](https://dash.cloudflare.com/profile/api-tokens))
     * `CLOUDFLARE_EMAIL`

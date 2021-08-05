@@ -2,4 +2,4 @@
 set -euo pipefail
 
 terraform -chdir=tf apply
-ansible-playbook -i $(./get_ip.sh), ansible/provision.yaml
+ansible-playbook -i $(./scripts/get_ip.sh), ansible/provision.yaml
